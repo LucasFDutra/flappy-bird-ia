@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+testpaths="tests"
+pythonpath="."
+addopts=["--strict-markers", "--strict-config"]
+
+[others]
+addopts_coverage=["--cov=src", "--cov-report=html"]
