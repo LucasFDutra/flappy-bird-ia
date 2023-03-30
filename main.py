@@ -1,7 +1,7 @@
 import pygame
-from src.components import Tube, Bird
+
 from src import utils
-#start_game, end_game, update_scoreboard, render_tube_pair, handle_events, adjust_difficulty_parameters
+from src.components import Bird, Tube
 
 pygame.init()
 
@@ -16,8 +16,7 @@ previous_tube_distance = 600
 tube_speed = 2
 
 background = pygame.transform.scale(
-    pygame.image.load('images/background.png'), 
-    size=screen_size
+    pygame.image.load('images/background.png'), size=screen_size
 )
 
 tubes_group = pygame.sprite.Group()
@@ -33,30 +32,51 @@ while True:
     clock.tick(fps)
 
     utils.handle_events()
-    surface.blit(background, (0,0))
+    surface.blit(background, (0, 0))
 
     if counter % fps == 0:
-        previous_tube_distance, bird_space, tube_speed = utils.adjust_difficulty_parameters(
-            points=points, previous_tube_distance=previous_tube_distance, 
-            bird_space=bird_space, tube_speed=tube_speed
+        (
+            previous_tube_distance,
+            bird_space,
+            tube_speed,
+        ) = utils.adjust_difficulty_parameters(
+            points=points,
+            previous_tube_distance=previous_tube_distance,
+            bird_space=bird_space,
+            tube_speed=tube_speed,
         )
-        
+
         utils.render_tube_pair(
-            tubes_group=tubes_group, screen_size=screen_size, bird_space=bird_space, 
-            previous_tube_distance=previous_tube_distance, tube_speed=tube_speed
+            tubes_group=tubes_group,
+            screen_size=screen_size,
+            bird_space=bird_space,
+            previous_tube_distance=previous_tube_distance,
+            tube_speed=tube_speed,
         )
         points += 1
 
         t0 = tubes_group.sprites()[0]
-        print(f'posição tubo {t0.rect.x} - count {counter} - vel: {v - t0.rect.x}')
+        print(
+            f'posição tubo {t0.rect.x} - count {counter} - vel: {v - t0.rect.x}'
+        )
         v = t0.rect.x
 
-    if pygame.sprite.groupcollide(bird_group, tubes_group, False, False) and 1 == 0:
-        utils.end_game(surface=surface, screen_size=screen_size, font_end=font_end, distance=points)
+    if (
+        pygame.sprite.groupcollide(bird_group, tubes_group, False, False)
+        and 1 == 0
+    ):
+        utils.end_game(
+            surface=surface,
+            screen_size=screen_size,
+            font_end=font_end,
+            distance=points,
+        )
 
     tubes_group.draw(surface)
     bird_group.draw(surface)
-    utils.update_scoreboard(surface=surface, font_score=font_score, points=points)
+    utils.update_scoreboard(
+        surface=surface, font_score=font_score, points=points
+    )
     tubes_group.update()
     bird_group.update()
     pygame.display.update()

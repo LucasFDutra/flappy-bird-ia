@@ -1,15 +1,15 @@
-from pygame.sprite import Sprite
 import pygame
+from pygame.sprite import Sprite
+
 
 class Bird(Sprite):
     def __init__(self, screen_size):
         super().__init__()
         self.image = pygame.transform.scale(
-            pygame.image.load('images/bird.png'),
-            (25,25)
+            pygame.image.load('images/bird.png'), (25, 25)
         )
         self.screen_size = screen_size
-        self.rect = self.image.get_rect(center=(90, self.screen_size[1]/2))
+        self.rect = self.image.get_rect(center=(90, self.screen_size[1] / 2))
 
     def update(self):
         keys = pygame.key.get_pressed()
