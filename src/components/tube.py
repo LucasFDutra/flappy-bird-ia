@@ -1,38 +1,56 @@
 from pygame.sprite import Sprite
 import pygame
 from random import randint
+from collections import namedtuple
 
+
+Point = namedtuple('Point', ['x', 'y'])
 
 class Tube(Sprite):
-    def __init__(self, is_top, screen_size, other_tube, last_tube):
+    def __init__(self, tube_type, speed, screen_size, other_tube, previous_tube, bird_space, previous_tube_distance):
         super().__init__()
-        if is_top:
-            self.image = pygame.transform.rotate(pygame.image.load('images/tube.png'), 180)
-        else:
-            self.image = pygame.image.load('images/tube.png')
+        self.tube_type = tube_type
+        self.speed = speed
+        self.image = self.__define_image()
+        
+        self.bird_space = bird_space
+        self.previous_tube_distance = previous_tube_distance
 
-        img_size_x, img_size_y = self.image.get_size()
-        screen_size_y = screen_size[1]
+        self.img_size = Point(*self.image.get_size())
+        self.screen_size = Point(*screen_size)
+        self.img_center = Point(x=self.img_size.x/2, y=self.img_size.y/2)
+        self.tube_size = Point(*self.__define_tube_size(other_tube))
+        self.rect = self.image.get_rect(center = self.__define_center(previous_tube))
+
+    def __define_tube_size(self, other_tube):
         if not other_tube:
-            max_size = screen_size_y*0.7 if screen_size_y*0.7 < img_size_y else img_size_y
-            tube_size_y = randint(50, max_size)
-
-            tube_center = img_size_y/2
-            y = screen_size_y - (tube_size_y - tube_center)
+            max_size_ = self.screen_size.y - self.bird_space
+            max_size = max_size_ if max_size_ < self.img_size.y else self.img_size.y
+            return (self.img_size.x, randint(50, max_size))
         else:
-            tube_size_y = screen_size_y - other_tube.tube_size_y - 150
-            tube_center = img_size_y/2
-            y = (tube_size_y - tube_center)
+            tube_size = self.screen_size.y - other_tube.tube_size.y - self.bird_space
+            return (self.img_size.x, tube_size)
 
-        self.tube_size_y = tube_size_y
-        if last_tube:
-            x = last_tube.rect.x + 600
+    def __define_center(self, previous_tube):
+        if self.tube_type == 'bottom':
+            y = self.screen_size.y - (self.tube_size.y - self.img_center.y)
         else:
-            x = screen_size[0]
+            y = self.tube_size.y - self.img_center.y
+            
+        if previous_tube:
+            x = previous_tube.rect.x + self.previous_tube_distance
+        else:
+            x = self.screen_size.x
+        
+        return (x, y)
 
-        self.rect = self.image.get_rect(center = (x,y))
+    def __define_image(self):
+        if self.tube_type == 'bottom':
+            return pygame.image.load('images/tube.png')
+        elif self.tube_type == 'top':
+            return pygame.transform.rotate(pygame.image.load('images/tube.png'), 180)
 
     def update(self):
-        self.rect.x -= 2
+        self.rect.x -= self.speed
         if self.rect.x < -self.image.get_size()[0]:
             self.kill()
