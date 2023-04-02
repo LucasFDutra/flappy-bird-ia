@@ -9,7 +9,7 @@ class Game():
     def __init__(self) -> None:
         pygame.init()
 
-        self.screen_size = Point(x=960, y=540)
+        self.screen_size = Point(x=960, y=400)
         
         self.surface = pygame.display.set_mode(size=tuple(self.screen_size))
         self.clock = pygame.time.Clock()
@@ -36,24 +36,41 @@ class Game():
         self.collide = False
 
 
-    def start(self, n_birds):
-        for _ in range(n_birds):
-            self.bird_group.add(Bird(self.screen_size, up_speed=self.bird_up_speed, down_speed=self.bird_down_speed, size=self.bird_size))
+    def start(self, n_birds, human):
+        for i in range(n_birds):
+            use_ia = False if human and i == 0 else True
+            self.bird_group.add(
+                Bird(
+                    screen_size=self.screen_size, 
+                    up_speed=self.bird_up_speed, 
+                    down_speed=self.bird_down_speed, 
+                    size=self.bird_size,
+                    id=i,
+                    tube_group=self.tube_group,
+                    use_ia=use_ia
+                )
+            )
 
 
-    def end_game(self):
-        if not self.collide: return
-        # self.surface.blit(
-        #     self.font_end.render('Perdeu!!', True, (255, 255, 255)),
-        #     (self.screen_size.x / 2 - 150, self.screen_size.y / 2),
-        # )
-        # self.surface.blit(
-        #     self.font_end.render(f'Pontos: {bird.points}', True, (255, 255, 255)),
-        #     (self.screen_size.x / 2 - 220, self.screen_size.y / 2 + 100),
-        # )
-        # pygame.display.update()
-        # pygame.time.delay(1000)
-        # pygame.quit()
+    def end_game(self, bird):
+        bird_id = bird.id
+        bird.lost_game()
+        if len(self.bird_group) == 0:
+            self.surface.blit(
+                self.font_end.render('Fim!!', True, (255, 255, 255)),
+                (self.screen_size.x / 2 - 150, 50),
+            )
+            self.surface.blit(
+                self.font_end.render(f'Max Pontos: {self.points}', True, (255, 255, 255)),
+                (self.screen_size.x / 2 - 300, 170),
+            )
+            self.surface.blit(
+                self.font_end.render(f'Vencedor - Bird: {bird_id}', True, (255, 255, 255)),
+                (self.screen_size.x / 2 - 400, 290),
+            )
+            pygame.display.update()
+            pygame.time.delay(1000)
+            pygame.quit()
 
 
     def render_tube_pair(self):
@@ -88,7 +105,6 @@ class Game():
 
 
     def adjust_difficulty_parameters(self):
-        # x = (vx * y)/vy
         rebuild_tubes = False
         bird_max_speed = max(self.bird_up_speed, self.bird_down_speed)
         tube_max_speed = 5
@@ -131,15 +147,18 @@ class Game():
                 if len(self.tube_group.sprites()) < 20:
                     self.render_tube_pair()
 
-        if pygame.sprite.groupcollide(self.bird_group, self.tube_group, False, False):
-            self.end_game()
+        collision = pygame.sprite.groupcollide(self.bird_group, self.tube_group, False, False)
+
+        if collision:
+            for bird in collision.keys():
+                self.end_game(bird)
 
         self.tube_group.draw(self.surface)
         self.bird_group.draw(self.surface)
 
         for i, bird in enumerate(self.bird_group.sprites()):
             self.surface.blit(
-                self.font_score.render(f'Pontos: {bird.points}', True, (255, 255, 255)),
+                self.font_score.render(f'Bird: {bird.id} - Pontos: {bird.points}', True, (255, 255, 255)),
                 (20, 20*(i+1)),
             )
 
@@ -150,5 +169,5 @@ class Game():
 
         for tube in self.tube_group.sprites():
             if tube.rect.x < self.screen_size.x and tube.tube_type == 'bottom' and not tube.printou:
-                print(tube.print)
+                #print(tube.print)
                 tube.printou = True
