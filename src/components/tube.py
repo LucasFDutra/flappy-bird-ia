@@ -13,7 +13,6 @@ class Tube(Sprite):
         self.speed = speed
         self.image = self.__define_image()
         self.size = None
-        self.printou = False
 
     def define_position(self, x, y):
         self.rect = self.image.get_rect(center=(x, y))

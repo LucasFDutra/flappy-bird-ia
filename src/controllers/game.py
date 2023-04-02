@@ -95,7 +95,6 @@ class Game():
         top_tube.define_position(x, top_y)
         self.tube_group.add(bottom_tube)
         self.tube_group.add(top_tube)
-        bottom_tube.print = f'pontos: {self.points} bird_space: {self.bird_space} - speed: {self.tube_speed} - previus dist: {self.previous_tube_distance} n_tubes: {len(tubes)}'
         
 
     def handle_events(self):
@@ -166,8 +165,3 @@ class Game():
         self.tube_group.update()
         self.bird_group.update(points=self.points)
         pygame.display.update()
-
-        for tube in self.tube_group.sprites():
-            if tube.rect.x < self.screen_size.x and tube.tube_type == 'bottom' and not tube.printou:
-                #print(tube.print)
-                tube.printou = True
