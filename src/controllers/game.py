@@ -69,7 +69,7 @@ class Game():
                 (self.screen_size.x / 2 - 400, 290),
             )
             pygame.display.update()
-            pygame.time.delay(1000)
+            pygame.time.delay(5000)
             pygame.quit()
 
 
