@@ -3,11 +3,7 @@ from pygame.sprite import Sprite
 
 
 class Tube(Sprite):
-    def __init__(
-        self,
-        tube_type,
-        speed
-    ):
+    def __init__(self, tube_type, speed):
         super().__init__()
         self.tube_type = tube_type
         self.speed = speed
@@ -27,5 +23,5 @@ class Tube(Sprite):
 
     def update(self):
         self.rect.x -= self.speed
-        if self.rect.x < -self.image.get_size()[0]:
+        if self.rect.x < -self.size.x:
             self.kill()
