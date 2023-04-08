@@ -30,11 +30,9 @@ class Bird(Sprite):
     def go_up(self):
         self.rect.y -= self.deslocamento()
         self.time = 0
-        #print('subindo')
 
     def go_down(self):
         self.rect.y += self.deslocamento()
-        #print('descendo')
 
     def deslocamento(self):
         s = (self.speed*self.time) + ((self.gravity*(self.time**2))/2)
