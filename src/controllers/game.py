@@ -14,7 +14,7 @@ class Game():
         self.surface = pygame.display.set_mode(size=tuple(self.screen_size))
         self.clock = pygame.time.Clock()
 
-        self.font_end = pygame.font.SysFont('arial', 50)
+        self.font_end = pygame.font.SysFont('arial', 30)
         self.font_score = pygame.font.SysFont('arial', 10)
         
         self.tube_group = pygame.sprite.Group()
@@ -44,33 +44,31 @@ class Game():
 
     def start(self, n_birds):
         for _ in range(n_birds):
-            self.bird_group.add(
-                Bird(
-                    size=self.bird_size,
-                    speed=self.bird_speed, 
-                    gravity=self.gravity, 
-                    x=self.bird_x,
-                    y=int(self.screen_size.y/2)
-                )
-            )
+            self.bird_group.add(self.create_bird())
+
         n_tubes = int((self.screen_size.x - self.bird_x)/self.tube_space) + 2
         for i in range(n_tubes):
             self.render_tube_pair()
         self.next_bottom_tube = self.bottom_tube_group.sprites()[0]
 
+    def create_bird(self):
+        return Bird(
+            size=self.bird_size,
+            speed=self.bird_speed, 
+            gravity=self.gravity, 
+            x=self.bird_x,
+            y=int(self.screen_size.y/2)
+        )
 
-    def end_game(self, bird):
+
+    def end_game(self):
         self.surface.blit(
             self.font_end.render('Fim!!', True, (255, 255, 255)),
-            (self.screen_size.x / 2 - 150, 50),
+            (self.bird_x, self.screen_size.y - 100),
         )
         self.surface.blit(
-            self.font_end.render(f'Max Pontos: {self.points}', True, (255, 255, 255)),
-            (self.screen_size.x / 2 - 300, 170),
-        )
-        self.surface.blit(
-            self.font_end.render(f'Bird: {bird.id}', True, (255, 255, 255)),
-            (self.screen_size.x / 2 - 400, 290),
+            self.font_end.render(f'Pontos: {self.points}', True, (255, 255, 255)),
+            (self.bird_x, self.screen_size.y - 50),
         )
         pygame.display.update()
         pygame.time.delay(5000)
@@ -105,10 +103,15 @@ class Game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-            
-            if event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-                return True
-        return False
+    
+    def handle_controll_event(self):
+        key = pygame.key.get_pressed()
+        if key[pygame.K_SPACE]:
+            for bird in self.bird_group.sprites():
+                bird.go_up()
+        else:
+            for bird in self.bird_group.sprites():
+                bird.go_down()
 
     def draw_score(self):
         birds = sorted(self.bird_group.sprites(), key=lambda bird: bird.points)
@@ -119,10 +122,16 @@ class Game():
                 (20, 20*(i+1)),
             )
 
+    def handle_collision(self, collision):
+        for bird in collision.keys():
+            if len(self.bird_group.sprites()) == 1:
+                self.end_game()
+            bird.kill()
 
-    def update_frame(self, counter):
+    def update_frame(self):
         self.clock.tick(self.fps)
-        go_up = self.handle_events()
+        self.handle_events()
+        self.handle_controll_event()
         self.surface.blit(self.background, (0, 0))
         
         if self.next_bottom_tube.rect.x + self.next_bottom_tube.size.x <= self.bird_x - self.bird_size.x/2:
@@ -130,17 +139,10 @@ class Game():
             self.points += 1
             self.render_tube_pair()
 
-        bird = self.bird_group.sprites()[0]
-        if bird.rect.y + self.bird_size.y * 2 > self.next_bottom_tube.rect.y:
-            go_up = True
-
         collision = pygame.sprite.groupcollide(self.bird_group, self.tube_group, False, False)
 
         if collision and self.collide:
-            for bird in collision.keys():
-                if len(self.bird_group.sprites()) == 1:
-                    self.end_game(bird)
-                bird.kill()
+            self.handle_collision(collision)
 
         self.tube_group.draw(self.surface)
         self.bird_group.draw(self.surface)
@@ -148,5 +150,5 @@ class Game():
         self.draw_score()
 
         self.tube_group.update()
-        self.bird_group.update(points=self.points, go_up=go_up)
+        self.bird_group.update(points=self.points)
         pygame.display.update()
