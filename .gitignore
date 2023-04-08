@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+better_bkp.json
 # C extensions
 *.so
 
