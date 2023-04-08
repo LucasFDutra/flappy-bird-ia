@@ -15,7 +15,7 @@ class Game():
         self.clock = pygame.time.Clock()
 
         self.font_end = pygame.font.SysFont('arial', 30)
-        self.font_score = pygame.font.SysFont('arial', 10)
+        self.font_score = pygame.font.SysFont('arial', 15)
         
         self.tube_group = pygame.sprite.Group()
         self.bottom_tube_group = pygame.sprite.Group()
@@ -40,26 +40,25 @@ class Game():
         self.collide = collide
 
         self.next_bottom_tube = None
+        self.score_color = (0, 0, 0)
 
 
     def start(self, n_birds):
         for _ in range(n_birds):
-            self.bird_group.add(self.create_bird())
+            self.bird_group.add(
+                Bird(
+                    size=self.bird_size,
+                    speed=self.bird_speed, 
+                    gravity=self.gravity, 
+                    x=self.bird_x,
+                    y=randint(50, self.screen_size.y - 50)
+                )
+            )
 
         n_tubes = int((self.screen_size.x - self.bird_x)/self.tube_space) + 2
         for i in range(n_tubes):
             self.render_tube_pair()
         self.next_bottom_tube = self.bottom_tube_group.sprites()[0]
-
-    def create_bird(self):
-        return Bird(
-            size=self.bird_size,
-            speed=self.bird_speed, 
-            gravity=self.gravity, 
-            x=self.bird_x,
-            y=int(self.screen_size.y/2)
-        )
-
 
     def end_game(self):
         self.surface.blit(
@@ -71,7 +70,7 @@ class Game():
             (self.bird_x, self.screen_size.y - 50),
         )
         pygame.display.update()
-        pygame.time.delay(5000)
+        pygame.time.delay(3000)
         pygame.quit()
 
 
@@ -114,11 +113,9 @@ class Game():
                 bird.go_down()
 
     def draw_score(self):
-        birds = sorted(self.bird_group.sprites(), key=lambda bird: bird.points)
-
-        for i, bird in enumerate(birds[0:5]):
+        for i, bird in enumerate(self.bird_group.sprites()[0:5]):
             self.surface.blit(
-                self.font_score.render(f'Bird: {bird.id} - Pontos: {bird.points}', True, (255, 255, 255)),
+                self.font_score.render(f'Bird: {bird.id} - Pontos: {bird.points}', True, self.score_color),
                 (20, 20*(i+1)),
             )
 
