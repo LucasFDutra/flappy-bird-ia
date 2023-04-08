@@ -83,5 +83,6 @@ class GameAI(Game):
         for i, bird in enumerate(self.bird_group.sprites()):
             nn_config = birds_config[i%len(birds_config)]
             self.birds_ai[bird.id] = BirdAI(bird, nn_config, max_variation=self.max_variation)
-            self.birds_ai[bird.id].mutate()
+            if i >= (len(birds_config)*self.min_birds_per_gen)+1:
+                self.birds_ai[bird.id].mutate()
             
