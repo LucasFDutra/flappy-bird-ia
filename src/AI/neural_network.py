@@ -139,7 +139,8 @@ class BirdAI:
     def create_nn(self, config):
         if not config:
             nn = NeuralNetwork()
-            nn.add(Layer(n_neurons=3, activate_function='linear', max_variation=self.max_variation))
+            nn.add(Layer(n_neurons=5, activate_function='linear', max_variation=self.max_variation))
+            nn.add(Layer(n_neurons=4, activate_function='linear', max_variation=self.max_variation))
             nn.add(Layer(n_neurons=2, activate_function='linear', max_variation=self.max_variation))
             nn.add(Layer(n_neurons=1, activate_function='tanh', max_variation=self.max_variation))
             return nn
@@ -154,7 +155,7 @@ class BirdAI:
         d_bottom = abs(bird_high - bottom_tube_high)
         d_top = abs(bird_high - top_tube_high)
         self.bird.ai_points = self.bird.points - (d_bottom + d_top)
-        res = self.nn.run(inputs=[bird_high, bottom_tube_high, top_tube_high])
+        res = self.nn.run(inputs=[bird_high, bottom_tube_high, top_tube_high, self.bird.speed, self.bird.gravity])
         if res[0] > 0.5:
             self.bird.go_up()
         else:
