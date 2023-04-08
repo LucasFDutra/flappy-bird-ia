@@ -20,11 +20,8 @@ class Bird(Sprite):
         )
         self.rect = self.image.get_rect(center=(x, y))
 
-    def update(self, points, go_up):
+    def update(self, points):
         self.time += 1
-        if go_up: self.go_up()
-        else: self.go_down()
-
         if self.rect.y <= 0: self.rect.y = 0
         if self.rect.y + self.size.y >= 600: self.rect.y = 600 - self.size.y
         
@@ -33,9 +30,11 @@ class Bird(Sprite):
     def go_up(self):
         self.rect.y -= self.deslocamento()
         self.time = 0
+        #print('subindo')
 
     def go_down(self):
         self.rect.y += self.deslocamento()
+        #print('descendo')
 
     def deslocamento(self):
         s = (self.speed*self.time) + ((self.gravity*(self.time**2))/2)
