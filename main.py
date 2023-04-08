@@ -4,19 +4,21 @@ from src.controllers import GameAI
 import json
 from time import sleep
 import matplotlib.pyplot as plt
+from os import remove
 
 collide = True
 n_birds = 1
 use_ai = False
 ai_training = False
 
+sleep_time = 0
 tube_speed = 7
-bird_space = 60
-min_birds_per_gen = 2
-max_points = 50
-max_variation = 0.2
-n_generations = 200
-tube_space = 600
+bird_space = 56
+min_birds_per_gen = 3
+max_points = 100
+max_variation = 0.05
+n_generations = 300
+tube_space = 650
 
 for arg in argv:
     if arg == '-c=off':
@@ -52,7 +54,7 @@ def ai_training_game(ai_config_file):
     while True:
         game.update_frame()
         if len(game.bird_group.sprites()) <= min_birds_per_gen:
-            sleep(1)
+            sleep(sleep_time)
             game.old_gen_points[game.gen] = game.points
             birds_config = game.get_birds_config()
             game.reset()
@@ -77,7 +79,8 @@ def ai_game(ai_config_file):
     game.add_birds_ai(config)
     while True:
         game.update_frame()
-        if len(game.bird_group.sprites()) == 0 or game.points >= 100:
+        if len(game.bird_group.sprites()) == 0 or game.points >= max_points:
+            print(f'fim de jogo: {game.points}')
             game.end_game()
             break
 
